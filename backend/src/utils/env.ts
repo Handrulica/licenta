@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const env = cleanEnv(process.env, {
-  ETH_ADDRESS: str(),
-  PROVIDER: str(),
+  INFURA_API_KEY: str(),
+  ETHEREUM_NETWORK: str(),
+  ETHEREUM_ADDRESS: str(),
 });
