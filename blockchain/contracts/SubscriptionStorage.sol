@@ -74,7 +74,8 @@ contract SubscriptionStorage is AccessControl {
 
     event SubscriptionInstanceDeleted(
         address caller,
-        bytes32 subscriptionInstanceId
+        bytes32 subscriptionInstanceId,
+        bytes32 subscriptionId
     );
 
     event PaymentProcessed(
@@ -504,7 +505,11 @@ contract SubscriptionStorage is AccessControl {
             _subscriptionInstanceId
         ];
 
-        emit SubscriptionInstanceDeleted(_msgSender(), _subscriptionInstanceId);
+        emit SubscriptionInstanceDeleted(
+            _msgSender(),
+            _subscriptionInstanceId,
+            _subscriptionId
+        );
     }
 
     function handleSubscriptionInstacePayment(
@@ -593,6 +598,18 @@ contract SubscriptionStorage is AccessControl {
             );
         }
         return false;
+    }
+
+    function handleBatchSubscriptionInstacePayment(
+        bytes32[] calldata _subscriptionsIds,
+        bytes32[] calldata _subscriptionInstancesIds
+    ) public {
+        for (uint256 index = 0; index < _subscriptionsIds.length; index++) {
+            handleSubscriptionInstacePayment(
+                _subscriptionsIds[index],
+                _subscriptionInstancesIds[index]
+            );
+        }
     }
 
     function reactivateSubscriptionInstance(

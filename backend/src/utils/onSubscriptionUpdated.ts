@@ -1,9 +1,9 @@
 import { Contract } from 'ethers';
 import { prisma } from './prisma';
 
-export const onSubscriptionCreated = async (contract: Contract) => {
+export const onSubscriptionUpdated = async (contract: Contract) => {
 	contract.on(
-		'SubscriptionCreated',
+		'SubscriptionUpdated',
 		async (
 			caller,
 			subscriptionId,
@@ -15,7 +15,7 @@ export const onSubscriptionCreated = async (contract: Contract) => {
 			period,
 			data
 		) => {
-			const subscriptionCreatedData = {
+			const subscriptionUpdatedData = {
 				caller,
 				subscriptionId,
 				owner,
@@ -27,14 +27,17 @@ export const onSubscriptionCreated = async (contract: Contract) => {
 				data,
 			};
 
-			const subscriptionCreated = await prisma.subscriptionCreated.findUnique({
+			const subscriptionUpdated = await prisma.subscriptionCreated.findUnique({
 				where: {
-					subscriptionId: subscriptionCreatedData.subscriptionId,
+					subscriptionId: subscriptionUpdatedData.subscriptionId,
 				},
 			});
 
-			if (!subscriptionCreated) {
-				const newSubscriptionCreated = await prisma.subscriptionCreated.create({
+			if (subscriptionUpdated) {
+				const newSubscriptionUpdated = await prisma.subscriptionCreated.update({
+					where: {
+						subscriptionId: subscriptionUpdatedData.subscriptionId,
+					},
 					data: {
 						caller: caller,
 						subscriptionId: subscriptionId,
@@ -48,7 +51,7 @@ export const onSubscriptionCreated = async (contract: Contract) => {
 					},
 				});
 
-				console.info('New subscription created: ', newSubscriptionCreated);
+				console.info('New subscription updated: ', newSubscriptionUpdated);
 			}
 		}
 	);

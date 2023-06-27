@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model SubscriptionCreated {
@@ -21,4 +22,16 @@ model SubscriptionCreated {
   initialAmount          Json
   period                 Json
   data                   String
+}
+
+model SubscriptionInstanceCreated {
+  SubscriptionInstanceCreated_id String @id @default(uuid())
+  caller                 String
+  subscriptionInstanceId String @unique
+  subscriptionId         String 
+  owner String
+  nextPayment Json
+  status Json
+  discount Json
+  data String
 }
