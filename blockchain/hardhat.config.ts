@@ -9,7 +9,7 @@ const config: HardhatUserConfig = {
 			url: 'https://rpc.sepolia.org/',
 			chainId: 11155111,
 			accounts: [
-				'fd09d9503a96261bf3da42f902e6871c8164d2dd8185e3a13f9273443fa377a7',
+				'b6844d8414cb4b811c5c758b8f07ed45f42cd616e7042fd995734a2bc1b03f0d',
 			],
 		},
 	},

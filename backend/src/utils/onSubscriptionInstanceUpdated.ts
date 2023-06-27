@@ -10,7 +10,6 @@ export const onSubscriptionInstanceUpdated = async (contract: Contract) => {
 			subscriptionId,
 			owner,
 			nextPayment,
-			status,
 			discount,
 			data
 		) => {
@@ -20,7 +19,6 @@ export const onSubscriptionInstanceUpdated = async (contract: Contract) => {
 				subscriptionId,
 				owner,
 				nextPayment,
-				status,
 				discount,
 				data,
 			};
@@ -46,9 +44,9 @@ export const onSubscriptionInstanceUpdated = async (contract: Contract) => {
 							subscriptionId: subscriptionId,
 							owner: owner,
 							nextPayment: nextPayment,
-							status: status,
 							discount: discount,
 							data: data,
+							active: true,
 						},
 					});
 

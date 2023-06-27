@@ -31,7 +31,7 @@ model SubscriptionInstanceCreated {
   subscriptionId         String 
   owner String
   nextPayment Json
-  status Json
   discount Json
   data String
+  active Boolean
 }

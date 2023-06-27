@@ -815,7 +815,7 @@ describe('Subscription Storage tests', function () {
 				)
 			)
 				.to.emit(subscriptionStorage, 'SubscriptionInstanceDeleted')
-				.withArgs(owner.address, subscriptionInstanceId);
+				.withArgs(owner.address, subscriptionInstanceId, subscriptionId);
 
 			// Checking the subscription instance does not exist after deletion
 			await expect(
