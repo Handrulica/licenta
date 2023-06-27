@@ -3,7 +3,6 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";
 import "./UnorderedKeySet.sol";
 
 contract SubscriptionStorage is AccessControl {
@@ -84,7 +83,7 @@ contract SubscriptionStorage is AccessControl {
         uint256 nextPaymentPeriod
     );
 
-    event SubscriptionDeactived(
+    event SubscriptionInstanceDeactivated(
         bytes32 subscriptionInstanceId,
         bytes32 subscriptionId
     );
@@ -142,7 +141,9 @@ contract SubscriptionStorage is AccessControl {
         );
 
         // Generating an unique ID for subscription based on the address of the sender and the block timestamp
-        bytes32 subscriptionId = keccak256(abi.encodePacked(_msgSender()));
+        bytes32 subscriptionId = keccak256(
+            abi.encodePacked(_msgSender(), block.timestamp)
+        );
 
         // Inserting the new subcription's id into the set
         subscriptionsSet.insert(subscriptionId);
@@ -269,7 +270,7 @@ contract SubscriptionStorage is AccessControl {
         require(
             ((subscriptions[_subscriptionId].owner == _msgSender()) ||
                 hasRole(SUBSCRIPTION_OPERATOR_ROLE, _msgSender())),
-            "Only the owner or the operator of the subscription can update it"
+            "Only the owner or the operator of the subscription can delete it"
         );
         subscriptionsSet.remove(_subscriptionId);
         delete subscriptions[_subscriptionId];
@@ -439,7 +440,6 @@ contract SubscriptionStorage is AccessControl {
     function updateSubscriptionInstance(
         bytes32 _subscriptionInstanceId,
         bytes32 _subscriptionId,
-        SubscriptionStatus _status,
         uint256 _discount,
         string memory _data
     ) public {
@@ -458,11 +458,10 @@ contract SubscriptionStorage is AccessControl {
         );
 
         SubscriptionInstance storage subscriptionInstance = subscriptions[
-            _subscriptionInstanceId
+            _subscriptionId
         ].subscriptionInstances[_subscriptionInstanceId];
 
         // Updating the subscription instance's data
-        subscriptionInstance.status = _status;
         subscriptionInstance.discount = _discount;
         subscriptionInstance.data = _data;
 
@@ -588,7 +587,7 @@ contract SubscriptionStorage is AccessControl {
         } else {
             // If not, update the subscription status
             currentSubscriptionInstance.status = SubscriptionStatus.INACTIVE;
-            emit SubscriptionDeactived(
+            emit SubscriptionInstanceDeactivated(
                 _subscriptionInstanceId,
                 _subscriptionId
             );
@@ -596,7 +595,7 @@ contract SubscriptionStorage is AccessControl {
         return false;
     }
 
-    function reactivateSubscriptionPayment(
+    function reactivateSubscriptionInstance(
         bytes32 _subscriptionId,
         bytes32 _subscriptionInstanceId
     ) public {
@@ -606,16 +605,21 @@ contract SubscriptionStorage is AccessControl {
             "Only the subscription operator or subscription owner can reactivate the subscription!"
         );
 
+        SubscriptionInstance
+            storage currentSubscriptionInstance = subscriptions[_subscriptionId]
+                .subscriptionInstances[_subscriptionInstanceId];
+
+        require(
+            currentSubscriptionInstance.status == SubscriptionStatus.INACTIVE,
+            "This subscription instance is already active!"
+        );
+
         bool paymentSucceded = handleSubscriptionInstacePayment(
             _subscriptionId,
             _subscriptionInstanceId
         );
 
         if (paymentSucceded) {
-            SubscriptionInstance
-                storage currentSubscriptionInstance = subscriptions[
-                    _subscriptionId
-                ].subscriptionInstances[_subscriptionInstanceId];
             currentSubscriptionInstance.status = SubscriptionStatus.ACTIVE;
             emit SubscriptionReactivated(
                 _subscriptionInstanceId,
